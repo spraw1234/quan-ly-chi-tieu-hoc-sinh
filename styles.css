@@ -1,0 +1,15 @@
+/* style.css */
+/* Custom styles to enhance Tailwind with Glassmorphism and playful elements */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+input, select, button {
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+/* Glassmorphism effects are handled via Tailwind classes like bg-white/30 backdrop-blur-md */
