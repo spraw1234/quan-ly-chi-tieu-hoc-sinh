@@ -1,15 +1,208 @@
-/* style.css */
-/* Custom styles to enhance Tailwind with Glassmorphism and playful elements */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+:root {
+    --neon: #00ffff;
+    --neon-glow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+    --bg-dark: #000;
+    --text: #e0f7ff;
 }
 
-input, select, button {
-    transition: all 0.3s ease;
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: var(--bg-dark);
+    color: var(--text);
+    transition: all 0.4s;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-shadow: var(--neon-glow);
+    margin: 0;
+}
+
+h2 {
+    text-shadow: 0 0 15px var(--neon);
+}
+
+button {
+    background: var(--neon);
+    color: #000;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: var(--neon-glow);
+    transition: all 0.3s;
 }
 
 button:hover {
-    transform: scale(1.05);
+    box-shadow: 0 0 30px var(--neon), 0 0 50px var(--neon);
+    transform: translateY(-3px);
 }
 
-/* Glassmorphism effects are handled via Tailwind classes like bg-white/30 backdrop-blur-md */
+.form-group {
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #b0f0ff;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--neon);
+    border-radius: 8px;
+    background: rgba(0, 255, 255, 0.05);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+input[type="number"]:focus {
+    outline: none;
+    box-shadow: var(--neon-glow);
+    border-color: #00e0e0;
+}
+
+/* Custom Checkbox Neon */
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    margin: 12px 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.custom-checkbox input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.custom-checkbox span {
+    position: relative;
+    padding-left: 36px;
+    font-size: 1.05rem;
+}
+
+.custom-checkbox span::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--neon);
+    border-radius: 6px;
+    background: rgba(0, 255, 255, 0.05);
+    transition: all 0.3s;
+}
+
+.custom-checkbox:hover span::before {
+    box-shadow: 0 0 15px var(--neon);
+}
+
+.custom-checkbox input:checked + span::before {
+    background: var(--neon);
+    box-shadow: var(--neon-glow);
+}
+
+.custom-checkbox input:checked + span::after {
+    content: '✔';
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Grid checkbox */
+.checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 30px;
+}
+
+fieldset {
+    border: 2px solid var(--neon);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 25px 0;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+legend {
+    color: var(--neon);
+    font-size: 1.3rem;
+    padding: 0 12px;
+    text-shadow: 0 0 10px var(--neon);
+}
+
+/* Biểu đồ nhỏ gọn */
+canvas {
+    margin: 20px auto;
+    display: block;
+    max-width: 320px;
+    max-height: 320px;
+    width: 100% !important;
+    height: auto !important;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.25);
+}
+
+@media (max-width: 600px) {
+    canvas {
+        max-width: 280px;
+        max-height: 280px;
+        margin: 15px auto;
+    }
+    .checkbox-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Bảng kết quả */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.95em;
+}
+
+th, td {
+    border: 1px solid var(--neon);
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background: rgba(0, 255, 255, 0.15);
+}
+
+/* Light mode */
+.light-mode {
+    --bg-dark: #f0f8ff;
+    --text: #000;
+    --neon: #007bff;
+    --neon-glow: 0 0 10px #007bff, 0 0 20px #007bff;
+}
+
+.light-mode input[type="number"] {
+    background: white;
+    color: #000;
+    border-color: #007bff;
+}

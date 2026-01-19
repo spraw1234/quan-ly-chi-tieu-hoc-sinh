@@ -1,91 +1,139 @@
-// script.js
 document.addEventListener('DOMContentLoaded', () => {
-    let budget = 0;
-    let period = 'week'; // Default to week
-    let totalExpense = 0;
-    let expenses = { food: 0, study: 0, game: 0, travel: 0 };
-    let chart;
+    const inputSection = document.getElementById('input-section');
+    const resultSection = document.getElementById('result-section');
+    const expenseForm = document.getElementById('expense-form');
+    const pieChartCanvas = document.getElementById('pie-chart');
+    const statsTableBody = document.querySelector('#stats-table tbody');
+    const displayGoal = document.getElementById('display-goal');
+    const daysToGoal = document.getElementById('days-to-goal');
+    const daysCount = document.getElementById('days-count');
+    const dailySavingDisplay = document.getElementById('daily-saving');
+    const resetBtn = document.getElementById('reset-btn');
+    const themeToggle = document.getElementById('theme-toggle');
 
-    // Initialize Chart.js
-    const ctx = document.getElementById('expense-chart').getContext('2d');
-    chart = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Ăn uống', 'Học tập', 'Game/Giải trí', 'Di chuyển'],
+    let chartInstance = null;
+
+    // Làm tròn xuống hàng nghìn gần nhất
+    function roundToThousand(num) {
+        return Math.floor(num / 1000) * 1000;
+    }
+
+    // Toggle theme
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        document.body.classList.toggle('light-mode');
+        themeToggle.textContent = document.body.classList.contains('dark-mode') 
+            ? 'Chuyển sang Light Mode' 
+            : 'Chuyển sang Dark Mode';
+    });
+
+    // Xử lý form
+    expenseForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const dailyAmount = parseFloat(document.getElementById('daily-amount').value);
+        const daysPerWeek = parseInt(document.getElementById('days-per-week').value);
+        const savingGoal = parseFloat(document.getElementById('saving-goal').value);
+        const selectedItems = Array.from(document.querySelectorAll('.expense-item:checked'));
+
+        if (selectedItems.length === 0) {
+            alert('Vui lòng chọn ít nhất một mục chi tiêu!');
+            return;
+        }
+
+        let totalRatio = 0;
+        selectedItems.forEach(item => totalRatio += parseInt(item.dataset.ratio));
+
+        const allocations = {};
+        const chartData = {
+            labels: [],
             datasets: [{
-                data: [0, 0, 0, 0],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                data: [],
+                backgroundColor: ['#00ffff', '#00ff00', '#ffff00', '#ff00ff', '#ff0000', '#0000ff', '#ffa500', '#800080']
             }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: { callbacks: { label: (context) => `${context.label}: ${context.raw}%` } }
+        };
+
+        selectedItems.forEach(item => {
+            const ratio = parseInt(item.dataset.ratio);
+            const normalizedRatio = (ratio / totalRatio) * 100;
+            const dailyAlloc = (normalizedRatio / 100) * dailyAmount;
+            const roundedDaily = roundToThousand(dailyAlloc);
+
+            allocations[item.value] = {
+                daily: roundedDaily,
+                weekly: roundToThousand(roundedDaily * daysPerWeek),
+                monthly: roundToThousand(roundedDaily * daysPerWeek * 4),
+                yearly: roundToThousand(roundedDaily * daysPerWeek * 52)
+            };
+
+            chartData.labels.push(item.value);
+            chartData.datasets[0].data.push(Math.round(normalizedRatio * 10) / 10);
+        });
+
+        displayGoal.textContent = savingGoal.toLocaleString();
+        inputSection.style.display = 'none';
+        resultSection.style.display = 'block';
+
+        // Tính ngày đạt mục tiêu
+        daysToGoal.style.display = 'none';
+        if (allocations['Tiết kiệm']) {
+            const dailySaving = allocations['Tiết kiệm'].daily;
+            if (dailySaving > 0) {
+                const daysNeeded = Math.ceil(savingGoal / dailySaving);
+                daysCount.textContent = daysNeeded.toLocaleString();
+                dailySavingDisplay.textContent = (dailySaving / 1000).toLocaleString();
+                daysToGoal.style.display = 'block';
             }
         }
-    });
 
-    // Set Budget
-    document.getElementById('set-budget').addEventListener('click', () => {
-        budget = parseInt(document.getElementById('budget').value) || 0;
-        period = document.getElementById('budget-period').value;
-        updateRemaining();
-        updatePetStatus();
-    });
+        // Vẽ biểu đồ (nhỏ gọn, chữ rõ)
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(pieChartCanvas, {
+            type: 'pie',
+            data: chartData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { size: 14 }, color: document.body.classList.contains('dark-mode') ? '#e0f7ff' : '#333', padding: 20 }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Phân bổ phần trăm (%)',
+                        font: { size: 16 },
+                        color: document.body.classList.contains('dark-mode') ? '#00ffff' : '#007bff'
+                    },
+                    tooltip: {
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 13 },
+                        callbacks: { label: (context) => `${context.label}: ${context.raw.toFixed(1)}%` }
+                    }
+                },
+                animation: { duration: 1200 }
+            }
+        });
 
-    // Add Expense
-    document.getElementById('add-expense').addEventListener('click', () => {
-        const amount = parseInt(document.getElementById('expense-amount').value) || 0;
-        const category = document.getElementById('expense-category').value;
-        expenses[category] += amount;
-        totalExpense += amount;
-        updateChart();
-        updateTotal();
-        updateRemaining();
-        updatePetStatus();
-        document.getElementById('expense-amount').value = '';
-    });
-
-    // Set Goal
-    document.getElementById('set-goal').addEventListener('click', () => {
-        const item = document.getElementById('goal-item').value;
-        const price = parseInt(document.getElementById('goal-price').value) || 0;
-        const days = parseInt(document.getElementById('goal-days').value) || 1;
-        const dailySave = price / days;
-        document.getElementById('goal-message').textContent = `Để mua "${item}", bạn cần tiết kiệm ${dailySave.toFixed(0)} VND mỗi ngày trong ${days} ngày.`;
-    });
-
-    function updateChart() {
-        const total = Object.values(expenses).reduce((a, b) => a + b, 0);
-        const percentages = Object.values(expenses).map(val => total > 0 ? (val / total * 100).toFixed(2) : 0);
-        chart.data.datasets[0].data = percentages;
-        chart.update();
-    }
-
-    function updateTotal() {
-        document.getElementById('total-expense').textContent = `Tổng chi tiêu: ${totalExpense} VND`;
-    }
-
-    function updateRemaining() {
-        const remaining = budget - totalExpense;
-        document.getElementById('remaining-budget').textContent = `Còn lại: ${remaining} VND`;
-    }
-
-    function updatePetStatus() {
-        const petStatus = document.getElementById('pet-status');
-        const petMessage = document.getElementById('pet-message');
-        const ratio = budget > 0 ? totalExpense / budget : 0;
-
-        if (ratio <= 0.5) {
-            petStatus.textContent = '🐶'; // Happy dog
-            petMessage.textContent = 'Thú cưng của bạn đang vui vẻ và lớn lên!';
-        } else if (ratio <= 1) {
-            petStatus.textContent = '🐕'; // Normal dog
-            petMessage.textContent = 'Thú cưng của bạn ổn, nhưng hãy tiết kiệm hơn!';
-        } else {
-            petStatus.textContent = '😢'; // Sad
-            petMessage.textContent = 'Thú cưng của bạn buồn vì chi tiêu quá đà!';
+        // Đổ bảng
+        statsTableBody.innerHTML = '';
+        for (const [item, amounts] of Object.entries(allocations)) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item}</td>
+                <td>${(amounts.daily / 1000).toLocaleString()}</td>
+                <td>${(amounts.weekly / 1000).toLocaleString()}</td>
+                <td>${(amounts.monthly / 1000).toLocaleString()}</td>
+                <td>${(amounts.yearly / 1000).toLocaleString()}</td>
+            `;
+            statsTableBody.appendChild(row);
         }
-    }
+    });
+
+    // Reset
+    resetBtn.addEventListener('click', () => {
+        resultSection.style.display = 'none';
+        inputSection.style.display = 'block';
+        expenseForm.reset();
+    });
 });

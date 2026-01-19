@@ -1,75 +1,102 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Chi Tiêu Học Sinh - Thú Cưng Tiết Kiệm</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
+    <title>Quản Lý Chi Tiêu Học Sinh</title>
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gradient-to-br from-blue-100 to-green-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white/30 backdrop-blur-md rounded-3xl shadow-xl p-8 max-w-md w-full border border-white/50">
-        <h1 class="text-3xl font-bold text-center mb-6 text-indigo-600">Quản Lý Chi Tiêu</h1>
-        
-        <!-- Thú Cưng Tiết Kiệm -->
-        <div class="text-center mb-6">
-            <div id="pet-status" class="text-6xl mb-2">🐶</div>
-            <p id="pet-message" class="text-lg font-semibold text-gray-700">Thú cưng của bạn đang vui vẻ!</p>
-        </div>
-        
-        <!-- Nhập Ngân Sách -->
-        <div class="mb-6">
-            <label for="budget" class="block text-sm font-medium text-gray-700">Ngân sách tiêu vặt (VND):</label>
-            <input type="number" id="budget" class="mt-1 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" placeholder="Ví dụ: 1000000">
-            <select id="budget-period" class="mt-2 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2">
-                <option value="week">Hàng tuần</option>
-                <option value="month">Hàng tháng</option>
-            </select>
-            <button id="set-budget" class="mt-2 w-full bg-indigo-500 text-white rounded-full py-2 font-semibold hover:bg-indigo-600">Đặt Ngân Sách</button>
-        </div>
-        
-        <!-- Nhập Chi Tiêu -->
-        <div class="mb-6">
-            <label for="expense-amount" class="block text-sm font-medium text-gray-700">Số tiền chi tiêu (VND):</label>
-            <input type="number" id="expense-amount" class="mt-1 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" placeholder="Ví dụ: 50000">
-            <select id="expense-category" class="mt-2 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2">
-                <option value="food">Ăn uống 🍔</option>
-                <option value="study">Học tập 📚</option>
-                <option value="game">Game/Giải trí 🎮</option>
-                <option value="travel">Di chuyển 🚗</option>
-            </select>
-            <button id="add-expense" class="mt-2 w-full bg-green-500 text-white rounded-full py-2 font-semibold hover:bg-green-600">Thêm Chi Tiêu</button>
-        </div>
-        
-        <!-- Biểu Đồ Thống Kê -->
-        <div class="mb-6">
-            <canvas id="expense-chart" class="w-full h-64"></canvas>
-        </div>
-        
-        <!-- Tiết Kiệm Mục Tiêu -->
-        <div class="mb-6">
-            <label for="goal-item" class="block text-sm font-medium text-gray-700">Món đồ muốn mua:</label>
-            <input type="text" id="goal-item" class="mt-1 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" placeholder="Ví dụ: Giày mới">
-            <label for="goal-price" class="block text-sm font-medium text-gray-700 mt-2">Giá (VND):</label>
-            <input type="number" id="goal-price" class="mt-1 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" placeholder="Ví dụ: 500000">
-            <label for="goal-days" class="block text-sm font-medium text-gray-700 mt-2">Số ngày đạt mục tiêu:</label>
-            <input type="number" id="goal-days" class="mt-1 block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2" placeholder="Ví dụ: 30">
-            <button id="set-goal" class="mt-2 w-full bg-purple-500 text-white rounded-full py-2 font-semibold hover:bg-purple-600">Đặt Mục Tiêu</button>
-            <p id="goal-message" class="mt-2 text-center text-gray-700"></p>
-        </div>
-        
-        <!-- Tổng Chi Tiêu -->
-        <div class="text-center">
-            <p id="total-expense" class="text-lg font-semibold">Tổng chi tiêu: 0 VND</p>
-            <p id="remaining-budget" class="text-lg font-semibold">Còn lại: 0 VND</p>
-        </div>
-    </div>
-    
+<body class="dark-mode">
+    <header>
+        <h1>Quản Lý Chi Tiêu Học Sinh</h1>
+        <button id="theme-toggle">Chuyển sang Light Mode</button>
+    </header>
+
+    <main>
+        <!-- Form nhập liệu -->
+        <section id="input-section">
+            <h2>Nhập thông tin chi tiêu hàng ngày</h2>
+            <form id="expense-form">
+                <div class="form-group">
+                    <label for="daily-amount">Số tiền hiện có mỗi ngày (VND):</label>
+                    <input type="number" id="daily-amount" placeholder="Ví dụ: 100000" required min="0">
+                </div>
+
+                <div class="form-group">
+                    <label for="days-per-week">Số ngày trong tuần sẽ chi tiêu:</label>
+                    <input type="number" id="days-per-week" placeholder="1-7" required min="1" max="7" value="5">
+                </div>
+
+                <fieldset>
+                    <legend>Chọn các mục chi tiêu cần thiết:</legend>
+                    <div class="checkbox-grid">
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="10" value="Bữa sáng">
+                            <span>Bữa sáng</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="20" value="Bữa trưa">
+                            <span>Bữa trưa</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="20" value="Bữa chiều">
+                            <span>Bữa chiều</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="10" value="Bữa tối">
+                            <span>Bữa tối</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="15" value="Đổ xăng">
+                            <span>Đổ xăng</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="5" value="Nước uống">
+                            <span>Nước uống</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="10" value="Tiết kiệm">
+                            <span>Tiết kiệm</span>
+                        </label>
+                        <label class="custom-checkbox">
+                            <input type="checkbox" class="expense-item" data-ratio="10" value="Quỹ dự phòng">
+                            <span>Quỹ dự phòng</span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <div class="form-group">
+                    <label for="saving-goal">Mục tiêu tiết kiệm (VND):</label>
+                    <input type="number" id="saving-goal" placeholder="Ví dụ: 5000000" required min="0">
+                </div>
+
+                <button type="submit">Bắt đầu tính toán</button>
+            </form>
+        </section>
+
+        <!-- Kết quả -->
+        <section id="result-section" style="display: none;">
+            <h2>Kết quả phân bổ chi tiêu</h2>
+            <p>Mục tiêu tiết kiệm của bạn: <span id="display-goal"></span> VND</p>
+            <p id="days-to-goal" style="display: none;">Để đạt mục tiêu, bạn cần khoảng <span id="days-count"></span> ngày (dựa trên tiết kiệm <span id="daily-saving"></span> nghìn VND/ngày).</p>
+            <canvas id="pie-chart" width="300" height="300"></canvas>
+            <table id="stats-table">
+                <thead>
+                    <tr>
+                        <th>Mục</th>
+                        <th>Ngày (nghìn VND)</th>
+                        <th>Tuần (nghìn VND)</th>
+                        <th>Tháng (nghìn VND)</th>
+                        <th>Năm (nghìn VND)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button id="reset-btn">Quay lại nhập liệu</button>
+        </section>
+    </main>
+
     <script src="script.js"></script>
 </body>
 </html>
