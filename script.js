@@ -13,21 +13,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let chartInstance = null;
 
-    // Làm tròn xuống hàng nghìn gần nhất
+    // Hàm làm tròn xuống nghìn
     function roundToThousand(num) {
         return Math.floor(num / 1000) * 1000;
     }
 
-    // Toggle theme
+    // Toggle theme - sửa để chắc chắn
     themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        document.body.classList.toggle('light-mode');
-        themeToggle.textContent = document.body.classList.contains('dark-mode') 
-            ? 'Chuyển sang Light Mode' 
-            : 'Chuyển sang Dark Mode';
+        if (document.body.classList.contains('dark-mode')) {
+            document.body.classList.remove('dark-mode');
+            document.body.classList.add('light-mode');
+            themeToggle.textContent = 'Chuyển sang Dark Mode';
+        } else {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = 'Chuyển sang Light Mode';
+        }
     });
 
-    // Xử lý form
+    // Phần còn lại giữ nguyên (form submit, chart, reset...)
     expenseForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
@@ -74,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         inputSection.style.display = 'none';
         resultSection.style.display = 'block';
 
-        // Tính ngày đạt mục tiêu
         daysToGoal.style.display = 'none';
         if (allocations['Tiết kiệm']) {
             const dailySaving = allocations['Tiết kiệm'].daily;
@@ -86,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Vẽ biểu đồ (nhỏ gọn, chữ rõ)
         if (chartInstance) chartInstance.destroy();
         chartInstance = new Chart(pieChartCanvas, {
             type: 'pie',
@@ -97,7 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 plugins: {
                     legend: {
                         position: 'top',
-                        labels: { font: { size: 14 }, color: document.body.classList.contains('dark-mode') ? '#e0f7ff' : '#333', padding: 20 }
+                        labels: { 
+                            font: { size: 14 }, 
+                            color: document.body.classList.contains('dark-mode') ? '#e0f7ff' : '#000000',
+                            padding: 20 
+                        }
                     },
                     title: {
                         display: true,
@@ -115,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Đổ bảng
         statsTableBody.innerHTML = '';
         for (const [item, amounts] of Object.entries(allocations)) {
             const row = document.createElement('tr');
@@ -130,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Reset
     resetBtn.addEventListener('click', () => {
         resultSection.style.display = 'none';
         inputSection.style.display = 'block';
